@@ -29,6 +29,14 @@ export class Boot extends Scene
         this.load.image('stone1', 'assets/stone1.png');
         this.load.image('stone2', 'assets/stone2.png');
         this.load.image('stone3', 'assets/stone3.png');
+
+        for (let i = 1; i <= 8; i++) {
+            this.load.image(`run/${i}`, `assets//robo/run/${i}.png`);
+        }
+
+        for (let i = 1; i <= 10; i++) {
+            this.load.image(`jump/${i}`, `assets//robo/jump/${i}.png`);
+        }
         
         this.load.audio('click', 'sounds/click.mp3');
     }

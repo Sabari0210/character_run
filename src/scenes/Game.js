@@ -167,6 +167,8 @@ export class Game extends Scene
         this.bg.setOrigin(0.5);
         this.gameGroup.add(this.bg);
 
+        this.addGraphicsAssets();
+
         this.gamePlay = new GamePlay(this,0,0,this,dimensions);
         this.gameGroup.add(this.gamePlay);
 
@@ -187,6 +189,17 @@ export class Game extends Scene
         }
         this.gameResized();
 
+    }
+
+    addGraphicsAssets(){
+        let graphics = this.add.graphics();
+        graphics.fillStyle(0xffffff, 1);
+        graphics.fillRect(0, 0, 160, 100);
+
+        graphics.generateTexture('whiteFrame', 160, 100);
+        this.gameGroup.add(graphics);
+
+        graphics.destroy();
     }
 
     playSound( key, config) {
