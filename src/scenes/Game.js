@@ -2,6 +2,7 @@ import { Scene } from 'phaser';
 import portrait from '../data/portrait.js';
 import landscape from '../data/landscape.js';
 import { GamePlay } from '../objects/gameplay.js';
+import { Water } from '../objects/water.js';
 
 let dimensions = { 
                 }
@@ -172,6 +173,9 @@ export class Game extends Scene
         this.gamePlay = new GamePlay(this,0,0,this,dimensions);
         this.gameGroup.add(this.gamePlay);
 
+        this.water = new Water(this,0,0,this,dimensions);
+        this.gameGroup.add(this.water);
+
         this.phaser3 = this.add.text(30,0, "PHASER-3", {
             fontFamily: 'Playground', fontSize: 55, color: '#ffffff',
             stroke: '#000000', strokeThickness: 3,
@@ -234,6 +238,7 @@ export class Game extends Scene
         this.phaser3.y = dimensions.gameHeight/2;
 
         this.gamePlay.adjust();
+        this.water.adjust();
     }
 
     offsetMouse() {

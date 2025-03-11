@@ -21,21 +21,31 @@ export class Boot extends Scene
         this.load.image('cloud2', 'assets/cloud2.png');
         this.load.image('cloud3', 'assets/cloud3.png');
         this.load.image('layer', 'assets/layer.png');
-        this.load.image('tree', 'assets/tree.png');
-        this.load.image('tree1', 'assets/tree1.png');
-        this.load.image('tree2', 'assets/tree2.png');
-        this.load.image('tree3', 'assets/tree3.png');
+        this.load.image('star', 'assets/star.png');
         this.load.image('water', 'assets/water.png');
-        this.load.image('stone1', 'assets/stone1.png');
-        this.load.image('stone2', 'assets/stone2.png');
-        this.load.image('stone3', 'assets/stone3.png');
+
+        for (let i = 1; i <= 9; i++) {
+            this.load.image(`tree_${i}`, `assets/tree_${i}.png`);
+        }
 
         for (let i = 1; i <= 8; i++) {
-            this.load.image(`run/${i}`, `assets//robo/run/${i}.png`);
+            this.load.image(`obs_${i}`, `assets/obs_${i}.png`);
+        }
+        
+        for (let i = 1; i <= 8; i++) {
+            this.load.image(`run/${i}`, `assets/robo/run/${i}.png`);
         }
 
         for (let i = 1; i <= 10; i++) {
-            this.load.image(`jump/${i}`, `assets//robo/jump/${i}.png`);
+            this.load.image(`jump/${i}`, `assets/robo/jump/${i}.png`);
+        }
+
+        for (let i = 1; i <= 10; i++) {
+            this.load.image(`dead/${i}`, `assets/robo/dead/${i}.png`);
+        }
+
+        for (let i = 1; i <= 10; i++) {
+            this.load.image(`idle/${i}`, `assets/robo/idle/${i}.png`);
         }
         
         this.load.audio('click', 'sounds/click.mp3');

@@ -32,10 +32,12 @@ export class GamePlay extends Phaser.GameObjects.Container {
         this.touchSpace = this.scene.add.sprite(0,0,"whiteFrame");
         this.touchSpace.setOrigin(.5);
         this.touchSpace.alpha = .00001;
-        this.speed = 4;
+        this.speed = 3;
+        this.currentSpeed = this.speed;
         this.addLayer();
 
         this.addTree();
+        this.addCloud();
         this.addObstacles();
 
         this.addPlayer();
@@ -59,12 +61,59 @@ export class GamePlay extends Phaser.GameObjects.Container {
         // this.add(this.scoreTxt);
 
         // this.visible = false;
-        this.gameStarted = true;
         this.add(this.touchSpace);
 
         this.touchSpace.setInteractive();
         this.touchSpace.on("pointerup", this.onDown, this);
 
+        setTimeout(() => {
+            this.startGame();
+        }, 1000);
+
+    }
+
+    startGame(){
+        this.gameStarted = true;
+        this.player.play("run");
+
+        this.updateSpeed();
+    }
+    
+    updateSpeed(){
+        if(this.speedTimeInterval)this.speedTimeInterval.remove();
+
+        this.speedTimeInterval = this.scene.time.addEvent({
+            delay: 10000, // Runs every 5 seconds
+            callback: () => {
+                this.currentSpeed += 1;
+                if (this.currentSpeed > 7){
+                    this.currentSpeed = 7;
+                    if(this.speedTimeInterval)this.speedTimeInterval.remove();
+                }
+                this.speed = this.currentSpeed;
+            },
+            callbackScope: this, // Ensures 'this' refers to the correct object
+            loop: true // Keeps running indefinitely
+        });
+    }
+
+    addCloud(){
+
+        this.cloudArr = [];
+        let startX = -300;
+        for(let i=0;i<8;i++){
+            let cloud = this.scene.add.sprite(startX,Phaser.Math.Between(-150,-250),"cloud"+Phaser.Math.Between(1,3));
+            cloud.setOrigin(.5);
+            this.add(cloud);
+            cloud.alpha = .5;
+            let randomValue = Phaser.Math.FloatBetween(0.4, 1);
+            randomValue = Math.round(randomValue * 10) / 10; // Round to 1 decimal place
+            cloud.setScale(randomValue);
+
+            this.cloudArr.push(cloud);
+
+            startX += cloud.displayWidth + Phaser.Math.Between(100,200)
+        }
     }
 
     checkPair(pair){
@@ -79,38 +128,44 @@ export class GamePlay extends Phaser.GameObjects.Container {
             this.player.stop("jump");
             this.player.play("run");
             this.playerStatus = "run"; 
-            this.speed = 4;
+            this.speed = this.currentSpeed;
         }
 
         if(((pointA.ishit && pointB.isPlayer) || (pointB.ishit && pointA.isPlayer))){
             this.gameStarted = false;
+            this.player.stop("run");
+            this.player.play("dead");
+            this.scene.matter.world.remove(this.player.graphics.body);
+            this.player.graphics.destroy();
         }
     }
 
     onDown(){
+        if(!this.gameStarted)return;
         if(this.playerStatus == "jump")return;
         this.player.stop("run");
         this.playerStatus = "jump";
         this.player.play("jump");
         this.player.graphics.setVelocity(0, -10)
-        this.speed = 5;
-
-    }
-
-    onUp(){
+        if(this.currentSpeed < 5)
+            this.speed = this.currentSpeed+1;
+    
 
     }
 
     addPlayer(){
-        this.player = this.scene.add.sprite(-200,0,"run/1");
+        this.player = this.scene.add.sprite(-200,30,"run/1");
         this.player.setOrigin(.5);
-        this.player.setScale(.3);
+        this.player.setScale(.2);
         this.addAnimation("run",8,this.speed*2,-1);
         this.addAnimation("jump",10,8,0);
-        this.player.play("run");
+        this.addAnimation("idle",10,8,0);
+        this.addAnimation("dead",10,13,0);
+        this.player.play("idle");
 
-        let playerGraphics = this.scene.matter.add.sprite(-200,0,"whiteFrame").setCollisionCategory(this.playerCollision).setCollidesWith(this.wallCollision,this.stoneCollision);
+        let playerGraphics = this.scene.matter.add.sprite(-200,30,"whiteFrame").setCollisionCategory(this.playerCollision).setCollidesWith(this.wallCollision,this.stoneCollision);
         playerGraphics.setOrigin(.5);
+        // playerGraphics.alpha = 0;
         playerGraphics.displayWidth = this.player.displayWidth/2;
         playerGraphics.displayHeight = this.player.displayHeight;
         this.add(playerGraphics);
@@ -118,9 +173,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
         playerGraphics.player = this.player;
         this.player.graphics = playerGraphics;
         playerGraphics.isPlayer = true;
-        // setInterval(() => {
-        //     this.player.play("jump");
-        // }, 3000);
+
     }
 
     addLayer(){
@@ -165,9 +218,10 @@ export class GamePlay extends Phaser.GameObjects.Container {
     addTree(){
         let startX = -500;
         this.treeArr = [];
-        let treeArrA = ["tree1","tree2","tree"]
-        for(let i=0;i<6;i++){
-            let tree = this.scene.add.sprite(startX, 75, treeArrA[Phaser.Math.Between(0,treeArrA.length-1)]);
+        let arr = [1,2,3,4,5,6,7,8,9];
+        arr = Phaser.Utils.Array.Shuffle(arr);
+        for(let i=0;i<9;i++){
+            let tree = this.scene.add.sprite(startX, 80, "tree_" + arr[i]);
             tree.setOrigin(0.5,1);
             this.add(tree);
             this.treeArr.push(tree);
@@ -178,15 +232,16 @@ export class GamePlay extends Phaser.GameObjects.Container {
     addObstacles(){
         let startX = 200;
         this.obstacleArr = [];
-        let treeArr = ["stone1","stone2","stone3"]
-        for(let i=0;i<6;i++){
-            let tree = this.scene.matter.add.sprite(startX, 85, treeArr[Phaser.Math.Between(0,treeArr.length-1)]).setStatic(true).setCollisionCategory(this.stoneCollision).setCollidesWith(this.playerCollision,this.wallCollision);
+        let arr = [1,2,3,4,5,6,7,8];
+        arr = Phaser.Utils.Array.Shuffle(arr)
+        for(let i=0;i<8;i++){
+            let tree = this.scene.matter.add.sprite(startX, 85, "obs_"+arr[i]).setStatic(true).setCollisionCategory(this.stoneCollision).setCollidesWith(this.playerCollision,this.wallCollision);
             tree.setOrigin(0.5,1);
             tree.setScale(0.3);
             tree.ishit = true;
             this.add(tree);
             this.obstacleArr.push(tree);
-            startX += Phaser.Math.Between(500,1000);
+            startX += Phaser.Math.Between(600,1000);
         }
     }
 
@@ -225,10 +280,9 @@ export class GamePlay extends Phaser.GameObjects.Container {
         this.x -=this.speed;
         this.player.graphics.x +=this.speed;
         this.touchSpace.x +=this.speed;
-
         this.player.x = this.player.graphics.x;
         this.player.y = this.player.graphics.y;
-
+        
         for(let i=0;i<this.layerArr.length;i++){
             if(((this.layerArr[i].x + this.x)  + this.layerArr[i].displayWidth/2 + 100) < ((this.dimension.leftOffset))){
                 let element = this.layerArr.shift();
@@ -238,14 +292,19 @@ export class GamePlay extends Phaser.GameObjects.Container {
             }
         }
 
-        
+        for(let i=0;i<this.cloudArr.length;i++){
+            if(((this.cloudArr[i].x + this.x)  + this.cloudArr[i].displayWidth/2 + 100) < ((this.dimension.leftOffset))){
+                let element = this.cloudArr.shift();
+                element.x = this.cloudArr[this.cloudArr.length-1].x + this.cloudArr[this.cloudArr.length-1].displayWidth + Phaser.Math.Between(100,200);
+                this.cloudArr.push(element);
+            }
+        }
+
         for(let i=0;i<this.treeArr.length;i++){
             if(((this.treeArr[i].x + this.x)  + this.treeArr[i].displayWidth/2 + 100) < ((this.dimension.leftOffset))){
                 let element = this.treeArr.shift();
                 element.x = this.treeArr[this.treeArr.length-1].x + Phaser.Math.Between(400,700);
                 this.treeArr.push(element);
-
-                console.log("tree")
             }
         }
 
@@ -254,7 +313,6 @@ export class GamePlay extends Phaser.GameObjects.Container {
                 let element = this.obstacleArr.shift();
                 element.x = this.obstacleArr[this.obstacleArr.length-1].x + Phaser.Math.Between(500,800);
                 this.obstacleArr.push(element);
-                console.log("obstacles")
             }
         }
     }
