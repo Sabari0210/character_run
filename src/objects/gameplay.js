@@ -26,6 +26,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
     init() {
 
         this.playerCollision = this.scene.matter.world.nextGroup(true);
+        this.coinCollision = this.scene.matter.world.nextGroup(true);
         this.wallCollision = this.scene.matter.world.nextGroup(true);
         this.stoneCollision = this.scene.matter.world.nextGroup(true);
 
@@ -38,6 +39,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
 
         this.addTree();
         this.addCloud();
+        this.addCoin();
         this.addObstacles();
 
         this.addPlayer();
@@ -70,6 +72,32 @@ export class GamePlay extends Phaser.GameObjects.Container {
             this.startGame();
         }, 1000);
 
+    }
+
+    disableBody(part) {
+        const body = part.body; // Get the Matter body
+    
+        if (body && body.parts) {
+            body.parts.forEach((part) => {
+                part.isSensor = true; // Make each part a sensor (no collisions)
+            });
+        }
+    }
+
+    addCoin(){
+        this.coinArr = [];
+
+        let startX = 150;
+        for(let i=0;i<15;i++){
+            let coin = this.scene.matter.add.sprite(startX,Phaser.Math.Between(-60,0),"star").setStatic(true).setCollisionCategory(this.coinCollision).setCollidesWith(this.playerCollision);
+            coin.setOrigin(.5);
+            coin.setScale(.1);
+            this.add(coin);
+            coin.isCoin = true;
+            this.coinArr.push(coin);
+            startX += (coin.displayWidth + Phaser.Math.Between(20,300))
+            this.disableBody(coin);
+        }
     }
 
     startGame(){
@@ -124,6 +152,12 @@ export class GamePlay extends Phaser.GameObjects.Container {
         let pointA = pair.bodyA.gameObject;
         let pointB = pair.bodyB.gameObject;
 
+        if(pointA.isPlayer && pointB.isCoin){
+            this.collectCoin(pointB);
+        }else if(pointB.isPlayer && pointA.isCoin){
+            this.collectCoin(pointA);
+        }
+
         if(((pointA.isWall && pointB.isPlayer) || (pointB.isWall && pointA.isPlayer)) && this.playerStatus != "run" ){
             this.player.stop("jump");
             this.player.play("run");
@@ -131,13 +165,17 @@ export class GamePlay extends Phaser.GameObjects.Container {
             this.speed = this.currentSpeed;
         }
 
-        if(((pointA.ishit && pointB.isPlayer) || (pointB.ishit && pointA.isPlayer))){
+        if((((pointA.ishit && pointB.isPlayer) && (pointA.x>(pointB.x-pointB.displayWidth/2))) || ((pointB.ishit && pointA.isPlayer) && (pointB.x>(pointA.x-pointA.displayWidth/2))) )){
             this.gameStarted = false;
             this.player.stop("run");
             this.player.play("dead");
             this.scene.matter.world.remove(this.player.graphics.body);
             this.player.graphics.destroy();
         }
+    }
+
+    collectCoin(coin){
+        coin.alpha = 0;
     }
 
     onDown(){
@@ -160,15 +198,16 @@ export class GamePlay extends Phaser.GameObjects.Container {
         this.addAnimation("run",8,this.speed*2,-1);
         this.addAnimation("jump",10,8,0);
         this.addAnimation("idle",10,8,0);
-        this.addAnimation("dead",10,13,0);
+        this.addAnimation("dead",10,16,0);
         this.player.play("idle");
 
-        let playerGraphics = this.scene.matter.add.sprite(-200,30,"whiteFrame").setCollisionCategory(this.playerCollision).setCollidesWith(this.wallCollision,this.stoneCollision);
+        let playerGraphics = this.scene.matter.add.sprite(-200,40,"whiteFrame").setCollisionCategory(this.playerCollision).setCollidesWith(this.wallCollision,this.stoneCollision,this.coinCollision);
         playerGraphics.setOrigin(.5);
-        // playerGraphics.alpha = 0;
+        playerGraphics.alpha = 0;
         playerGraphics.displayWidth = this.player.displayWidth/2;
-        playerGraphics.displayHeight = this.player.displayHeight;
+        playerGraphics.displayHeight = this.player.displayHeight - 20;
         this.add(playerGraphics);
+        playerGraphics.setFixedRotation(true); // Adjust speed as needed
         this.add(this.player);
         playerGraphics.player = this.player;
         this.player.graphics = playerGraphics;
@@ -188,7 +227,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
             this.add(layer);
             this.layerArr.push(layer);
 
-            let layerGraphics = this.scene.matter.add.sprite(startX, 117, 'whiteFrame');
+            let layerGraphics = this.scene.matter.add.sprite(startX, 110, 'whiteFrame');
             layerGraphics.displayWidth = layer.displayWidth;
             layerGraphics.displayHeight = layer.displayHeight;
             layerGraphics.setStatic(true).setCollisionCategory(this.wallCollision).setCollidesWith(this.playerCollision,this.stoneCollision);
@@ -313,6 +352,15 @@ export class GamePlay extends Phaser.GameObjects.Container {
                 let element = this.obstacleArr.shift();
                 element.x = this.obstacleArr[this.obstacleArr.length-1].x + Phaser.Math.Between(500,800);
                 this.obstacleArr.push(element);
+            }
+        }
+
+        for(let i=0;i<this.coinArr.length;i++){
+            if(((this.coinArr[i].x + this.x)  + this.coinArr[i].displayWidth/2 + 100) < ((this.dimension.leftOffset))){
+                let element = this.coinArr.shift();
+                element.x = this.coinArr[this.coinArr.length-1].x + this.coinArr[this.coinArr.length-1].displayWidth + Phaser.Math.Between(20,300);
+                this.coinArr.push(element);
+                element.alpha = 1;
             }
         }
     }
