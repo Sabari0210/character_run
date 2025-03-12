@@ -40,6 +40,10 @@ export class Boot extends Scene
             this.load.image(`jump/${i}`, `assets/robo/jump/${i}.png`);
         }
 
+        for (let i = 2; i <= 9; i++) {
+            this.load.image(`double_jumb/${i-1}`, `assets/robo/double/${i}.png`);
+        }
+
         for (let i = 1; i <= 10; i++) {
             this.load.image(`dead/${i}`, `assets/robo/dead/${i}.png`);
         }

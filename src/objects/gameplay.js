@@ -89,7 +89,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
 
         let startX = 150;
         for(let i=0;i<15;i++){
-            let coin = this.scene.matter.add.sprite(startX,Phaser.Math.Between(-60,0),"star").setStatic(true).setCollisionCategory(this.coinCollision).setCollidesWith(this.playerCollision);
+            let coin = this.scene.matter.add.sprite(startX,Phaser.Math.Between(-100,0),"star").setStatic(true).setCollisionCategory(this.coinCollision).setCollidesWith(this.playerCollision);
             coin.setOrigin(.5);
             coin.setScale(.1);
             this.add(coin);
@@ -104,7 +104,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
         this.gameStarted = true;
         this.player.play("run");
 
-        this.updateSpeed();
+        // this.updateSpeed();
     }
     
     updateSpeed(){
@@ -159,7 +159,8 @@ export class GamePlay extends Phaser.GameObjects.Container {
         }
 
         if(((pointA.isWall && pointB.isPlayer) || (pointB.isWall && pointA.isPlayer)) && this.playerStatus != "run" ){
-            this.player.stop("jump");
+            this.player.stop("jump");//double_jumb
+            this.player.stop("double_jumb");//double_jumb
             this.player.play("run");
             this.playerStatus = "run"; 
             this.speed = this.currentSpeed;
@@ -175,18 +176,27 @@ export class GamePlay extends Phaser.GameObjects.Container {
     }
 
     collectCoin(coin){
+        if(coin.alpha == 0)return;
         coin.alpha = 0;
+        this.scene.score.updateScore();
     }
 
     onDown(){
         if(!this.gameStarted)return;
-        if(this.playerStatus == "jump")return;
+        if(this.playerStatus == "double_jumb")return
+        if(this.playerStatus == "jump"){
+            this.playerStatus = "double_jumb";
+            this.player.stop("jump");
+            this.player.play("double_jumb");
+            this.player.graphics.setVelocity(0, -7);
+            return;
+        }
         this.player.stop("run");
         this.playerStatus = "jump";
         this.player.play("jump");
-        this.player.graphics.setVelocity(0, -10)
-        if(this.currentSpeed < 5)
-            this.speed = this.currentSpeed+1;
+        this.player.graphics.setVelocity(0, -10);
+        // if(this.currentSpeed < 5)
+        //     this.speed = this.currentSpeed+1;
     
 
     }
@@ -197,6 +207,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
         this.player.setScale(.2);
         this.addAnimation("run",8,this.speed*2,-1);
         this.addAnimation("jump",10,8,0);
+        this.addAnimation("double_jumb",9,8,0);
         this.addAnimation("idle",10,8,0);
         this.addAnimation("dead",10,16,0);
         this.player.play("idle");
