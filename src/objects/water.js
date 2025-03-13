@@ -81,7 +81,6 @@ export class Water extends Phaser.GameObjects.Container {
     }
 
     show(score) {
-        this.incrementBar(score);
         if (this.visible) return
         this.visible = true;
         this.alpha = 0;

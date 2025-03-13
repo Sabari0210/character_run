@@ -74,6 +74,34 @@ export class GamePlay extends Phaser.GameObjects.Container {
 
     }
 
+    destroyBodies(){
+        // this.scene.matter.world.remove(element);
+        this.layerArr.forEach(element => {
+            if(element.graphics){
+                this.scene.matter.world.remove(element);
+                // console.log("flkjflkjflkjl")
+            }
+        })
+
+        this.coinArr.forEach(element => {
+            if(element){
+                this.scene.matter.world.remove(element);
+                // console.log("flkjflkjflkjl")
+            }
+        })
+
+        this.obstacleArr.forEach(element => {
+            if(element){
+                this.scene.matter.world.remove(element);
+                // console.log("flkjflkjflkjl")
+            }
+        })
+
+        this.scene.matter.world.remove(this.player.graphics);
+        this.scene.matter.world.off('collisionactive');
+
+    }
+
     disableBody(part) {
         const body = part.body; // Get the Matter body
     
@@ -167,16 +195,30 @@ export class GamePlay extends Phaser.GameObjects.Container {
         }
 
         if((((pointA.ishit && pointB.isPlayer) && (pointA.x>(pointB.x-pointB.displayWidth/2))) || ((pointB.ishit && pointA.isPlayer) && (pointB.x>(pointA.x-pointA.displayWidth/2))) )){
-            this.gameStarted = false;
-            this.player.stop("run");
-            this.player.play("dead");
-            this.scene.matter.world.remove(this.player.graphics.body);
-            this.player.graphics.destroy();
+            this.gameFail();
         }
+    }
+
+    gameFail(){
+        if(!this.gameStarted)return;
+        this.gameStarted = false;
+        this.player.stop("run");
+        this.player.play("dead");
+        this.scene.matter.world.remove(this.player.graphics.body);
+        this.player.graphics.destroy();
+        this.scene.playSound('fail', { volume: .3 });
+
+        setTimeout(() => {
+            this.hide();
+            this.scene.score.hide();
+            this.scene.water.hide();
+            this.scene.endCard.show();
+        }, 1000);
     }
 
     collectCoin(coin){
         if(coin.alpha == 0)return;
+        this.scene.playSound('coin', { volume: .3 });
         coin.alpha = 0;
         this.scene.score.updateScore();
     }
@@ -184,6 +226,9 @@ export class GamePlay extends Phaser.GameObjects.Container {
     onDown(){
         if(!this.gameStarted)return;
         if(this.playerStatus == "double_jumb")return
+
+        this.scene.playSound('jump', { volume: .1 });
+
         if(this.playerStatus == "jump"){
             this.playerStatus = "double_jumb";
             this.player.stop("jump");
@@ -313,6 +358,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
 
     hide(){
         if(!this.visible)return;
+        this.destroyBodies();
         this.scene.tweens.add({
             targets: this,
             alpha:0,

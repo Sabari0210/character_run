@@ -40,12 +40,17 @@ export class Score extends Phaser.GameObjects.Container {
         this.add(this.scoreTxt);
     }
 
+    resetScore(){
+        this.currentScore = 0;
+        this.scoreTxt.text = this.currentScore;
+    }
+
     updateScore(){
         this.currentScore +=1;
         this.scoreTxt.text = this.currentScore;
 
-        if(this.currentScore%30 == 0){
-            this.scene.gamePlay.currentSpeed +=1;
+        if(this.currentScore%10 == 0){
+            this.scene.gamePlay.currentSpeed +=.3;
                 if (this.scene.gamePlay.currentSpeed > 7){
                     this.scene.gamePlay.currentSpeed = 7;
                 }
@@ -78,6 +83,7 @@ export class Score extends Phaser.GameObjects.Container {
             onComplete:()=>{
                 this.alpha = 0;
                 this.visible = false;
+                this.resetScore();
             }
         });
     }

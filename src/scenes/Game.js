@@ -4,6 +4,7 @@ import landscape from '../data/landscape.js';
 import { GamePlay } from '../objects/gameplay.js';
 import { Water } from '../objects/water.js';
 import { Score } from '../objects/score.js';
+import { EndCard } from '../objects/endcard.js';
 
 let dimensions = { 
                 }
@@ -180,6 +181,14 @@ export class Game extends Scene
         this.score = new Score(this,0,0,this,dimensions);
         this.gameGroup.add(this.score);
 
+        this.endCard = new EndCard(this,0,0,this,dimensions);
+        this.gameGroup.add(this.endCard);
+
+        this.logo = this.add.image(0,0,"logo");
+        this.logo.setOrigin(.5);
+        this.logo.setScale(.12);
+        this.gameGroup.add(this.logo);
+
         this.phaser3 = this.add.text(30,0, "PHASER-3", {
             fontFamily: 'Playground', fontSize: 55, color: '#ffffff',
             stroke: '#000000', strokeThickness: 3,
@@ -189,6 +198,14 @@ export class Game extends Scene
         this.gameGroup.add(this.phaser3);
         this.phaser3.alpha = 0;
 
+        this.bgm = this.sound.add('bgm', {
+            loop: true,    // Loop the background music
+            volume: 0.5    // Set volume to 50%
+        });
+    
+        // Play the background music
+        this.bgm.play();
+
         this.setPositions();
         try {
             dapi.addEventListener("adResized", this.gameResized.bind(this));
@@ -197,6 +214,49 @@ export class Game extends Scene
         }
         this.gameResized();
 
+    }
+
+    restartGame(){
+        this.gamePlay.destroy();
+        setTimeout(() => {
+            this.gamePlay = new GamePlay(this,0,0,this,dimensions);
+            this.gameGroup.add(this.gamePlay);
+            this.gameGroup.bringToTop(this.water);
+            this.gameGroup.bringToTop(this.score);
+            this.gameGroup.bringToTop(this.endCard);
+            this.gameGroup.bringToTop(this.logo);
+
+            this.water.show();
+            this.score.show();
+            this.setPositions();
+        }, 100);
+        
+    }
+
+    saveProgress(name,deviceId) {
+        const progress = this.loadProgress();
+        if (!progress[name]) {
+            progress[name] = { highScore: 0,score:0,deviceId : deviceId};
+        }
+
+        if(progress[name].highScore && progress[name].highScore > this.score.currentScore){
+            progress[name].highScore  = progress[name].highScore;
+
+        }else{
+            progress[name].highScore  = this.score.currentScore;
+        }
+
+        progress[name].score  = this.score.currentScore;
+        progress[name].deviceId  = deviceId;
+
+        console.log(progress)
+        this.highScore = progress[name].highScore;
+        localStorage.setItem('gameProgress', JSON.stringify(progress));
+    }
+
+    loadProgress() {
+        const savedProgress = localStorage.getItem('gameProgress');
+        return savedProgress ? JSON.parse(savedProgress) : {};
     }
 
     addGraphicsAssets(){
@@ -250,9 +310,13 @@ export class Game extends Scene
         this.phaser3.x = dimensions.gameWidth/2;
         this.phaser3.y = dimensions.gameHeight/2;
 
+        this.logo.x = dimensions.rightOffset - 70;
+        this.logo.y = dimensions.topOffset + 40;
+
         this.gamePlay.adjust();
         this.water.adjust();
         this.score.adjust();
+        this.endCard.adjust();
     }
 
     offsetMouse() {

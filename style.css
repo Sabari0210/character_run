@@ -1,12 +1,23 @@
 @font-face {
     font-family: "Playground";
-    src: url("./public/fonts/Playground.ttf") format("truetype");
+    src: url("./fonts/Playground.ttf") format("truetype");
 }
+
+@font-face {
+    font-family: "debussy";
+    src: url("./fonts/debussy.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Starborn";
+    src: url("./fonts/Starborn.ttf") format("truetype");
+}
+
 
 body {
     margin: 0;
     padding: 0;
     color: rgba(255, 255, 255, 0.87);
-    font-family: "Playground", sans-serif; /* Use your custom font */
+    font-family: "Playground", sans-serif; /* Default font */
     background-color: #000000;
 }
