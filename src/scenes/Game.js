@@ -5,6 +5,7 @@ import { GamePlay } from '../objects/gameplay.js';
 import { Water } from '../objects/water.js';
 import { Score } from '../objects/score.js';
 import { EndCard } from '../objects/endcard.js';
+import { PlayerData } from '../objects/player-data.js';
 
 let dimensions = { 
                 }
@@ -159,6 +160,7 @@ export class Game extends Scene
         this.gameScale = 1;
         this.positioned = false;
 
+        // localStorage.clear();
         this.cameras.main.setBackgroundColor(0x00ff00);
         this.superGroup = this.add.container();
         this.gameGroup = this.add.container();
@@ -183,6 +185,9 @@ export class Game extends Scene
 
         this.endCard = new EndCard(this,0,0,this,dimensions);
         this.gameGroup.add(this.endCard);
+
+        this.playerData = new PlayerData(this,0,0,this,dimensions);
+        this.gameGroup.add(this.playerData);
 
         this.logo = this.add.image(0,0,"logo");
         this.logo.setOrigin(.5);
@@ -216,16 +221,36 @@ export class Game extends Scene
 
     }
 
+    showEndCard(){
+        // const deviceId = localStorage.getItem("deviceId") || Math.random().toString(36).substr(2, 9);
+
+        this.saveProgress(this.playerData.playerName,this.playerData.currentDevice);
+        this.playerData.endGame();
+        setTimeout(() => {
+            // this.playSound('fail', { volume: .3 });
+            this.gamePlay.hide();
+            this.water.hide();
+            // this.timer.hide();
+            this.score.hide();
+            this.endCard.show();
+        }, 500);
+    }
+
     restartGame(){
         this.gamePlay.destroy();
         setTimeout(() => {
             this.gamePlay = new GamePlay(this,0,0,this,dimensions);
             this.gameGroup.add(this.gamePlay);
+
+            this.gamePlay.show();
+
             this.gameGroup.bringToTop(this.water);
             this.gameGroup.bringToTop(this.score);
             this.gameGroup.bringToTop(this.endCard);
             this.gameGroup.bringToTop(this.logo);
-
+            this.gameGroup.bringToTop(this.playerData);
+            if(this.playerData.textGrp)
+                this.playerData.textGrp.destroy();
             this.water.show();
             this.score.show();
             this.setPositions();
@@ -317,6 +342,7 @@ export class Game extends Scene
         this.water.adjust();
         this.score.adjust();
         this.endCard.adjust();
+        this.playerData.adjust();
     }
 
     offsetMouse() {

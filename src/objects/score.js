@@ -38,6 +38,8 @@ export class Score extends Phaser.GameObjects.Container {
             fill: '#000000'
         }).setOrigin(0.5, 0.5);
         this.add(this.scoreTxt);
+
+        this.visible = false;
     }
 
     resetScore(){

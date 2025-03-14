@@ -62,15 +62,16 @@ export class GamePlay extends Phaser.GameObjects.Container {
         // }).setOrigin(0.5, 0.5);
         // this.add(this.scoreTxt);
 
-        // this.visible = false;
         this.add(this.touchSpace);
 
         this.touchSpace.setInteractive();
         this.touchSpace.on("pointerup", this.onDown, this);
 
-        setTimeout(() => {
-            this.startGame();
-        }, 1000);
+        // setTimeout(() => {
+        //     this.startGame();
+        // }, 1000);
+
+        this.visible = false;
 
     }
 
@@ -209,10 +210,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
         this.scene.playSound('fail', { volume: .3 });
 
         setTimeout(() => {
-            this.hide();
-            this.scene.score.hide();
-            this.scene.water.hide();
-            this.scene.endCard.show();
+            this.scene.showEndCard();
         }, 1000);
     }
 
@@ -341,7 +339,6 @@ export class GamePlay extends Phaser.GameObjects.Container {
     }
 
     show(score) {
-        this.incrementBar(score);
         if (this.visible) return
         this.visible = true;
         this.alpha = 0;
@@ -351,7 +348,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
             ease: "linear",
             duration: 200,
             onComplete:()=>{
-                
+                this.startGame();
             }
         })
     }

@@ -88,6 +88,7 @@ export class EndCard extends Phaser.GameObjects.Container {
         this.alpha = 0;
         this.score.alpha = 0;
         this.scoreTxt.alpha = 0;
+        this.highScoreTxt.text = "HIGH SCORE : "+ this.scene.highScore;
         this.highScoreTxt.alpha = 0;
         this.retryButton.alpha = 0;
         this.score.setScale(2);
