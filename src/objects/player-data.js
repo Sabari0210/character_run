@@ -1,4 +1,4 @@
-import { deleteAllPlayers, displayLeaderboard, savePlayerData, generateBotPlayers, checkIfNameExists, isUserLoggedIn, setUserSession } from "./player-list";
+import { deleteAllPlayers, displayLeaderboard, savePlayerData, generateBotPlayers, checkIfNameExists, isUserLoggedIn, setUserSession, getLeaderboard } from "./player-list";
 
 export class PlayerData extends Phaser.GameObjects.Container {
     constructor(scene, x, y, gameScene,dimension) {
@@ -109,11 +109,21 @@ export class PlayerData extends Phaser.GameObjects.Container {
 
     async endGame(score) {
         await savePlayerData(this.playerName, this.scene.score.currentScore);
-        await setUserSession(this.playerName,this.currentDevice);
-        // this.scene.saveProgress(playerName);
+        await setUserSession(this.playerName, this.currentDevice);
+    
+        let leaderboardData = await getLeaderboard();
+        leaderboardData.sort((a, b) => b.currentScore - a.currentScore); // Sort instantly
+    
+        if (this.textGrp) {
+            this.textGrp.destroy(); // Remove old leaderboard
+        }
         this.textGrp = this.scene.add.container();
         this.add(this.textGrp);
-        // displayLeaderboard(this.textGrp,this.scene);
-        // this.scene.start("LeaderboardScene");
+    
+        displayLeaderboard(this.textGrp, this.scene, leaderboardData,this); // Pass updated data
+    
+        this.textGrp.x = -200;
+        this.textGrp.y = -250;
     }
+    
 }

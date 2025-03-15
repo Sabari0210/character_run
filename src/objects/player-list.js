@@ -119,18 +119,96 @@ import {
     return leaderboard;
   }
 
-  async function displayLeaderboard(parent, scene) {
-    const leaderboard = await getLeaderboard();
-    let y = 0;
+  async function displayLeaderboard(parent, scene, leaderboard,group) {
+    // Clear previous leaderboard elements
+    parent.removeAll(true);
 
+    // If leaderboard data is not provided, fetch it
+    if (!leaderboard) {
+        let loadingText = scene.add.text(250, 300, "Loading...", {
+            fontSize: "32px",
+            fill: "#ffffff",
+            fontStyle: "bold",
+            backgroundColor: "#000000",
+            padding: { left: 10, right: 10, top: 5, bottom: 5 }
+        }).setOrigin(0.5);
+        parent.add(loadingText);
+
+        leaderboard = await getLeaderboard(); // Fetch latest leaderboard data
+        loadingText.destroy();
+    }
+
+    // Sort leaderboard so highest score is first
+    leaderboard.sort((a, b) => b.currentScore - a.currentScore);
+
+    // Find current player
+    let currentPlayerIndex = leaderboard.findIndex(p => p.username === scene.playerName);
+    let currentPlayer = leaderboard[currentPlayerIndex];
+
+    // If current player exists and is not already first, move them to the top
+    if (currentPlayerIndex > 0) {
+        leaderboard.splice(currentPlayerIndex, 1); // Remove from current position
+        leaderboard.unshift(currentPlayer); // Move to first position
+    }
+
+    // Table dimensions
+    const tableWidth = 500;
+    const rowHeight = 60;
+    const startX = 50;
+    const startY = 50;
+
+    // Background box
+    let background = scene.add.graphics();
+    background.fillStyle(0xffffff, 1);
+    background.fillRoundedRect(startX - 10, startY - 10, tableWidth + 20, (leaderboard.length + 1) * rowHeight + 20, 10);
+    background.lineStyle(5, 0x000000, 1);
+    background.strokeRoundedRect(startX - 10, startY - 10, tableWidth + 20, (leaderboard.length + 1) * rowHeight + 20, 10);
+    parent.add(background);
+
+    // Table header
+    let headers = ["#", "Username", "Score"];
+    let columnWidths = [50, 300, 150];
+    let headerBg = scene.add.graphics();
+    headerBg.fillStyle(0x0000ff, 1);
+    headerBg.fillRect(startX, startY, tableWidth, rowHeight);
+    parent.add(headerBg);
+
+    headers.forEach((text, i) => {
+        let textObj = scene.add.text(
+            startX + columnWidths.slice(0, i).reduce((a, b) => a + b, 0) + 10,
+            startY + rowHeight / 2,
+            text,
+            { fontSize: "28px", fill: "#ffffff", fontWeight: "bold" }
+        ).setOrigin(0, 0.5);
+        parent.add(textObj);
+    });
+
+    // Draw leaderboard rows
     leaderboard.forEach((player, index) => {
-      let text = scene.add.text(0, y, `#${index + 1} ${player.username}: Score = ${player.currentScore}, High Score = ${player.highScore}`, { fontSize: '34px', fill: '#fff' });
-      y += 60;
-      text.setOrigin(0.5);
-      parent.add(text);
+        let yPos = startY + (index + 1) * rowHeight;
+
+        // Highlight current player
+        let rowColor = index % 2 === 0 ? 0xf0f0f0 : 0xdedede;
+        if(player.username == group.playerName)rowColor = 0xffd700;
+        console.log(player.username,group.playerName)
+        let rowBg = scene.add.graphics();
+        rowBg.fillStyle(rowColor, 1);
+        rowBg.fillRect(startX, yPos, tableWidth, rowHeight);
+        parent.add(rowBg);
+
+        let rowData = [`#${index + 1}`, player.username, player.currentScore];
+
+        rowData.forEach((text, colIndex) => {
+            let textObj = scene.add.text(
+                startX + columnWidths.slice(0, colIndex).reduce((a, b) => a + b, 0) + 10,
+                yPos + rowHeight / 2,
+                text,
+                { fontSize: "26px", fill: "#000000" }
+            ).setOrigin(0, 0.5);
+            parent.add(textObj);
+        });
     });
   }
-
 
   // Function to delete a player by name
   async function deletePlayerByName(username) {

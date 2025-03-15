@@ -33,19 +33,19 @@ export class EndCard extends Phaser.GameObjects.Container {
         this.frame.setOrigin(0.5);
         this.add(this.frame);
         
-        this.score = this.scene.add.text(0,-100, "GAME OVER", {
+        this.score = this.scene.add.text(0,-150, "GAME OVER", {
             font: 'bold 64px Arial',
             fill: '#bd2015'
         }).setOrigin(0.5, 0.5);
         this.add(this.score);
 
-        this.scoreTxt = this.scene.add.text(-200,20, "CURRENT SCORE : "+ this.currentScore, {
+        this.scoreTxt = this.scene.add.text(-200,-20, "CURRENT SCORE : "+ this.currentScore, {
             font: 'Bold 34px Arial',
             fill: '#000000'
         }).setOrigin(0.5, 0.5);
         this.add(this.scoreTxt);
 
-        this.highScoreTxt = this.scene.add.text(200,20, "HIGH SCORE : "+ this.highScore, {
+        this.highScoreTxt = this.scene.add.text(-200,50, "HIGH SCORE : "+ this.highScore, {
             font: 'Bold 34px Arial',
             fill: '#000000'
         }).setOrigin(0.5, 0.5);
@@ -93,7 +93,7 @@ export class EndCard extends Phaser.GameObjects.Container {
         this.retryButton.alpha = 0;
         this.score.setScale(2);
         this.scoreTxt.x = -400;
-        this.highScoreTxt.x = 400;
+        this.highScoreTxt.x = -400;
         this.scene.tweens.add({
             targets: this,
             alpha: 1,
@@ -107,24 +107,24 @@ export class EndCard extends Phaser.GameObjects.Container {
                     ease: "Power2",
                     duration: 200,
                     onComplete:()=>{
-                        this.scene.tweens.add({
-                            targets: this.scoreTxt,
-                            x: -200,
-                            alpha: 1,
-                            ease: "Power4",
-                            duration: 200,
-                            onComplete:()=>{
+                        // this.scene.tweens.add({
+                        //     targets: this.scoreTxt,
+                        //     x: -200,
+                        //     alpha: 1,
+                        //     ease: "Power4",
+                        //     duration: 200,
+                        //     onComplete:()=>{
                                 
-                            }
-                        })
+                        //     }
+                        // })
 
-                        this.scene.tweens.add({
-                            targets: this.highScoreTxt,
-                            x: 200,
-                            alpha: 1,
-                            ease: "Power4",
-                            duration: 200,
-                            onComplete:()=>{
+                        // this.scene.tweens.add({
+                        //     targets: this.highScoreTxt,
+                        //     x: -200,
+                        //     alpha: 1,
+                        //     ease: "Power4",
+                        //     duration: 200,
+                        //     onComplete:()=>{
                                 this.scene.tweens.add({
                                     targets: this.retryButton,
                                     alpha: 1,
@@ -145,8 +145,8 @@ export class EndCard extends Phaser.GameObjects.Container {
                                         })
                                     }
                                 })
-                            }
-                        })
+                            // }
+                        // })
                     }
                 })
             }
