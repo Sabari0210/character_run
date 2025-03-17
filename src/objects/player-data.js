@@ -92,6 +92,7 @@ export class PlayerData extends Phaser.GameObjects.Container {
                     this.button.remove();
                     this.scene.score.show();
                     this.scene.gamePlay.show();
+                    await savePlayerData(this.playerName, this.scene.score.currentScore);
                 }
             }
         });
@@ -107,13 +108,15 @@ export class PlayerData extends Phaser.GameObjects.Container {
         //   });
     }
 
-    async endGame(score) {
+    async addedscore(){
         await savePlayerData(this.playerName, this.scene.score.currentScore);
         await setUserSession(this.playerName, this.currentDevice);
-    
+    }
+
+    async endGame(score) {
         let leaderboardData = await getLeaderboard();
         leaderboardData.sort((a, b) => b.currentScore - a.currentScore); // Sort instantly
-    
+        
         if (this.textGrp) {
             this.textGrp.destroy(); // Remove old leaderboard
         }
@@ -122,8 +125,8 @@ export class PlayerData extends Phaser.GameObjects.Container {
     
         displayLeaderboard(this.textGrp, this.scene, leaderboardData,this); // Pass updated data
     
-        this.textGrp.x = -200;
-        this.textGrp.y = -250;
+        this.textGrp.x = this.dimension.leftOffset - this.x;
+        this.textGrp.y = -200;
     }
     
 }

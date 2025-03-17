@@ -33,7 +33,7 @@ export class EndCard extends Phaser.GameObjects.Container {
         this.frame.setOrigin(0.5);
         this.add(this.frame);
         
-        this.score = this.scene.add.text(0,-150, "GAME OVER", {
+        this.score = this.scene.add.text(200,-80, "GAME OVER", {
             font: 'bold 64px Arial',
             fill: '#bd2015'
         }).setOrigin(0.5, 0.5);
@@ -51,7 +51,7 @@ export class EndCard extends Phaser.GameObjects.Container {
         }).setOrigin(0.5, 0.5);
         this.add(this.highScoreTxt);
 
-        this.retryButton = this.scene.add.sprite(0,150,"retry");
+        this.retryButton = this.scene.add.sprite(200,80,"retry");
         this.retryButton.setOrigin(.5);
         this.retryButton.setScale(.4);
         this.add(this.retryButton);
@@ -94,6 +94,7 @@ export class EndCard extends Phaser.GameObjects.Container {
         this.score.setScale(2);
         this.scoreTxt.x = -400;
         this.highScoreTxt.x = -400;
+        this.scene.playerData.endGame();
         this.scene.tweens.add({
             targets: this,
             alpha: 1,
@@ -107,6 +108,7 @@ export class EndCard extends Phaser.GameObjects.Container {
                     ease: "Power2",
                     duration: 200,
                     onComplete:()=>{
+
                         // this.scene.tweens.add({
                         //     targets: this.scoreTxt,
                         //     x: -200,
@@ -118,13 +120,12 @@ export class EndCard extends Phaser.GameObjects.Container {
                         //     }
                         // })
 
-                        // this.scene.tweens.add({
-                        //     targets: this.highScoreTxt,
-                        //     x: -200,
-                        //     alpha: 1,
-                        //     ease: "Power4",
-                        //     duration: 200,
-                        //     onComplete:()=>{
+                        this.scene.tweens.add({
+                            targets: this,
+                            alpha: 1,
+                            ease: "Power4",
+                            duration: 400,
+                            onComplete:()=>{
                                 this.scene.tweens.add({
                                     targets: this.retryButton,
                                     alpha: 1,
@@ -136,7 +137,7 @@ export class EndCard extends Phaser.GameObjects.Container {
                                             targets: this.retryButton,
                                             scale: {
                                                 from: .4,
-                                                to: .5,
+                                                to: .35,
                                             },
                                             duration: 300,
                                             ease: "Power2",
@@ -145,8 +146,8 @@ export class EndCard extends Phaser.GameObjects.Container {
                                         })
                                     }
                                 })
-                            // }
-                        // })
+                            }
+                        })
                     }
                 })
             }

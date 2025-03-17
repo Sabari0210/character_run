@@ -208,7 +208,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
         this.scene.matter.world.remove(this.player.graphics.body);
         this.player.graphics.destroy();
         this.scene.playSound('fail', { volume: .3 });
-
+        this.scene.playerData.addedscore();
         setTimeout(() => {
             this.scene.showEndCard();
         }, 1000);

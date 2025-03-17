@@ -225,7 +225,7 @@ export class Game extends Scene
         // const deviceId = localStorage.getItem("deviceId") || Math.random().toString(36).substr(2, 9);
 
         this.saveProgress(this.playerData.playerName,this.playerData.currentDevice);
-        this.playerData.endGame();
+        // this.playerData.endGame();
         setTimeout(() => {
             // this.playSound('fail', { volume: .3 });
             this.gamePlay.hide();

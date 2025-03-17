@@ -108,7 +108,7 @@ import {
   }
 
   async function getLeaderboard() {
-    const q = query(collection(db, "players"), orderBy("highScore", "desc"), limit(10));
+    const q = query(collection(db, "players"), orderBy("highScore", "desc"));
     const querySnapshot = await getDocs(q);
 
     let leaderboard = [];
@@ -119,11 +119,9 @@ import {
     return leaderboard;
   }
 
-  async function displayLeaderboard(parent, scene, leaderboard,group) {
-    // Clear previous leaderboard elements
-    parent.removeAll(true);
+  async function displayLeaderboard(parent, scene, leaderboard, group) {
+    parent.removeAll(true); // Clear previous leaderboard elements
 
-    // If leaderboard data is not provided, fetch it
     if (!leaderboard) {
         let loadingText = scene.add.text(250, 300, "Loading...", {
             fontSize: "32px",
@@ -134,40 +132,55 @@ import {
         }).setOrigin(0.5);
         parent.add(loadingText);
 
-        leaderboard = await getLeaderboard(); // Fetch latest leaderboard data
+        leaderboard = await getLeaderboard(); // Fetch leaderboard data
         loadingText.destroy();
     }
 
-    // Sort leaderboard so highest score is first
+    // Sort leaderboard in descending order
     leaderboard.sort((a, b) => b.currentScore - a.currentScore);
 
-    // Find current player
-    let currentPlayerIndex = leaderboard.findIndex(p => p.username === scene.playerName);
-    let currentPlayer = leaderboard[currentPlayerIndex];
+    // Get current player
+    let currentPlayerIndex = leaderboard.findIndex(p => {
+      console.log(p.username, group.playerName); // Debugging log
+      return p.username === group.playerName; // This must return a value
+    });
 
-    // If current player exists and is not already first, move them to the top
-    if (currentPlayerIndex > 0) {
-        leaderboard.splice(currentPlayerIndex, 1); // Remove from current position
-        leaderboard.unshift(currentPlayer); // Move to first position
+    let currentPlayer = currentPlayerIndex !== -1 ? leaderboard[currentPlayerIndex] : null;
+
+    // Take top 5 players
+    let displayedPlayers = leaderboard.slice(0, 5);
+
+    console.log(currentPlayer,group.playerName);
+    // If current player is NOT in the top 5, add them
+    if (currentPlayer && !displayedPlayers.includes(currentPlayer)) {
+        displayedPlayers.push(currentPlayer);
+    } else if (!currentPlayer && leaderboard.length > 5) {
+        // If no current player, use the 6th best player as the "current player"
+        displayedPlayers.push(leaderboard[5]);
     }
 
-    // Table dimensions
+    // Ensure exactly 6 players are displayed
+    displayedPlayers = displayedPlayers.slice(0, 6);
+
+    // **Fixed Layout Settings**
+    const maxHeight = 250; // Maintain readability
+    let rowHeight = (maxHeight-20) / displayedPlayers.length;
     const tableWidth = 500;
-    const rowHeight = 60;
     const startX = 50;
     const startY = 50;
 
-    // Background box
+    // **Background Box**
     let background = scene.add.graphics();
     background.fillStyle(0xffffff, 1);
-    background.fillRoundedRect(startX - 10, startY - 10, tableWidth + 20, (leaderboard.length + 1) * rowHeight + 20, 10);
+    background.fillRoundedRect(startX - 10, startY - 10, tableWidth + 20, maxHeight + rowHeight, 10);
     background.lineStyle(5, 0x000000, 1);
-    background.strokeRoundedRect(startX - 10, startY - 10, tableWidth + 20, (leaderboard.length + 1) * rowHeight + 20, 10);
+    background.strokeRoundedRect(startX - 10, startY - 10, tableWidth + 20, maxHeight + rowHeight, 10);
     parent.add(background);
-
-    // Table header
+    
+    // **Header Row**
     let headers = ["#", "Username", "Score"];
     let columnWidths = [50, 300, 150];
+
     let headerBg = scene.add.graphics();
     headerBg.fillStyle(0x0000ff, 1);
     headerBg.fillRect(startX, startY, tableWidth, rowHeight);
@@ -183,14 +196,15 @@ import {
         parent.add(textObj);
     });
 
-    // Draw leaderboard rows
-    leaderboard.forEach((player, index) => {
+    // **Leaderboard Rows**
+    displayedPlayers.forEach((player, index) => {
         let yPos = startY + (index + 1) * rowHeight;
 
-        // Highlight current player
         let rowColor = index % 2 === 0 ? 0xf0f0f0 : 0xdedede;
-        if(player.username == group.playerName)rowColor = 0xffd700;
-        console.log(player.username,group.playerName)
+        if (player.username === group.playerName || (!currentPlayer && index === 5)) {
+            rowColor = 0xffd700; // Highlight current player or substitute last player
+        }
+
         let rowBg = scene.add.graphics();
         rowBg.fillStyle(rowColor, 1);
         rowBg.fillRect(startX, yPos, tableWidth, rowHeight);
