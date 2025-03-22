@@ -12,8 +12,10 @@ export class GamePlay extends Phaser.GameObjects.Container {
     }
 
     adjust() {
-
+        console.log("adjust")
         if(!this.scene.positioned)return;
+        if(this.adjustPositioned)return;
+
         let dimensions = this.dimension;
         
         this.x = dimensions.gameWidth / 2;
@@ -25,6 +27,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
 
     init() {
 
+        this.adjustPositioned = false;
         this.playerCollision = this.scene.matter.world.nextGroup(true);
         this.coinCollision = this.scene.matter.world.nextGroup(true);
         this.wallCollision = this.scene.matter.world.nextGroup(true);
@@ -132,6 +135,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
     startGame(){
         this.gameStarted = true;
         this.player.play("run");
+        this.adjustPositioned = true;
 
         // this.updateSpeed();
     }
@@ -370,6 +374,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
 
     update() {
         if(!this.gameStarted)return
+
         this.x -=this.speed;
         this.player.graphics.x +=this.speed;
         this.touchSpace.x +=this.speed;

@@ -59,7 +59,6 @@ export class EndCard extends Phaser.GameObjects.Container {
         this.retryButton.on('pointerup', function (pointer){
             this.onClick(pointer,this.retryButton);
         }.bind(this));
-
         this.visible  = false;
         // this.show();
     }
@@ -81,7 +80,9 @@ export class EndCard extends Phaser.GameObjects.Container {
     }
 
     show() {
-        if (this.visible) return
+        if (this.visible) return;
+        if(this.scene.gameOver)return
+        this.scene.gameOver = true;
         this.currentScore = this.scene.score.currentScore;
         this.scoreTxt.text = "CURRENT SCORE : "+ this.currentScore;
         this.visible = true;

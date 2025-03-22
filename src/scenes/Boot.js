@@ -25,7 +25,7 @@ export class Boot extends Scene
     }
 
     loadImage(){
-        this.load.image('background', 'assets/bg.png');
+        this.load.image('background', 'assets/bg.png',{ mipmaps: false });
         this.load.image('cloud1', 'assets/cloud1.png');
         this.load.image('cloud2', 'assets/cloud2.png');
         this.load.image('cloud3', 'assets/cloud3.png');

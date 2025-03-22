@@ -38,6 +38,12 @@ export class PlayerData extends Phaser.GameObjects.Container {
         this.button.style.position = "absolute";
         this.button.style.top = `${canvasRect.height/2 + 60}px`; // Center vertically (-15px to align correctly)
         this.button.style.left = `${canvasRect.width/2 - 50}px`; // Center horizontally (-100px to center width)
+   
+        // if(this.textGrp){
+        //     this.textGrp.x = -600;
+        //     this.textGrp.y = -200;
+        // }
+       
     }
 
     init() {
@@ -123,10 +129,10 @@ export class PlayerData extends Phaser.GameObjects.Container {
         this.textGrp = this.scene.add.container();
         this.add(this.textGrp);
     
-        displayLeaderboard(this.textGrp, this.scene, leaderboardData,this); // Pass updated data
+        displayLeaderboard(this.textGrp, this.scene, leaderboardData,this,this.dimension); // Pass updated data
     
-        this.textGrp.x = this.dimension.leftOffset - this.x;
-        this.textGrp.y = -200;
+        this.adjust();
+        
     }
     
 }

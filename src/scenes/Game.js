@@ -18,9 +18,9 @@ export class Game extends Scene
     }
 
     preload() {
-        // this.scale.lockOrientation(this.game.orientation);
+        this.scale.lockOrientation(this.game.orientation);
         // this.scale.lockOrientation('portrait');
-        this.scale.lockOrientation('landscape');
+        // this.scale.lockOrientation('landscape');
 
         let ratio = window.devicePixelRatio;
         dimensions.fullWidth = window.innerWidth * ratio;
@@ -32,16 +32,16 @@ export class Game extends Scene
         // this.switchMode();
 
         // Check and adjust resolution for landscape
-        if (dimensions.fullWidth < dimensions.fullHeight) {
-            [dimensions.fullWidth, dimensions.fullHeight] = [dimensions.fullHeight, dimensions.fullWidth];
-        }
-        this.switchMode();
-       
-        // if (dimensions.isPortrait != dimensions.fullWidth < dimensions.fullHeight) {
-        //     this.switchMode(!dimensions.isPortrait);
-        // } else {
-        //     this.switchMode(dimensions.isPortrait);
+        // if (dimensions.fullWidth < dimensions.fullHeight) {
+        //     [dimensions.fullWidth, dimensions.fullHeight] = [dimensions.fullHeight, dimensions.fullWidth];
         // }
+        // this.switchMode();
+       
+        if (dimensions.isPortrait != dimensions.fullWidth < dimensions.fullHeight) {
+            this.switchMode(!dimensions.isPortrait);
+        } else {
+            this.switchMode(dimensions.isPortrait);
+        }
 
         this.scale.displaySize.setAspectRatio(dimensions.fullWidth / dimensions.fullHeight);
         this.scale.refresh();
@@ -49,13 +49,14 @@ export class Game extends Scene
 
     switchMode(isPortrait) {
 
+        console.log(isPortrait)
         dimensions.isPortrait = isPortrait;
         dimensions.isLandscape = !isPortrait;
 
-        // let mode = portrait;
+        let mode = portrait;
 
-        // if (dimensions.isLandscape)
-        //     mode = landscape;
+        if (dimensions.isLandscape)
+            mode = landscape;
 
         // for portrait
         // dimensions.isPortrait = true;
@@ -63,9 +64,9 @@ export class Game extends Scene
         // let mode = portrait;
 
         // for landscape
-        dimensions.isPortrait = false;
-        dimensions.isLandscape = true;
-        let mode = landscape;
+        // dimensions.isPortrait = false;
+        // dimensions.isLandscape = true;
+        // let mode = landscape;
 
         dimensions.gameWidth = mode.gameWidth;
         dimensions.gameHeight = mode.gameHeight;
@@ -113,11 +114,17 @@ export class Game extends Scene
             // }
 
             // Force landscape dimensions
-            if (dimensions.fullWidth < dimensions.fullHeight) {
-                [dimensions.fullWidth, dimensions.fullHeight] = [dimensions.fullHeight, dimensions.fullWidth];
-            }
+            // if (dimensions.fullWidth < dimensions.fullHeight) {
+            //     [dimensions.fullWidth, dimensions.fullHeight] = [dimensions.fullHeight, dimensions.fullWidth];
+            // }
 
-            this.switchMode();
+            // this.switchMode();
+
+            if (dimensions.isPortrait != dimensions.fullWidth < dimensions.fullHeight) {
+                this.switchMode(!dimensions.isPortrait);
+            } else {
+                this.switchMode(dimensions.isPortrait);
+            }
             this.game.scale.setGameSize(dimensions.fullWidth, dimensions.fullHeight);
 
             this.game.canvas.style.width = `${dimensions.fullWidth}px`;
@@ -126,6 +133,7 @@ export class Game extends Scene
             this.game.scale.refresh();
 
             this.setGameScale();
+            // this.checkOrientation();
             this.setPositions();
         } finally {
             // Clear the resizing flag
@@ -159,6 +167,7 @@ export class Game extends Scene
     {
         this.gameScale = 1;
         this.positioned = false;
+        this.gameOver = false;
 
         // localStorage.clear();
         this.cameras.main.setBackgroundColor(0x00ff00);
@@ -171,7 +180,6 @@ export class Game extends Scene
         this.bg = this.add.image(0,0,"background");
         this.bg.setOrigin(0.5);
         this.gameGroup.add(this.bg);
-
         this.addGraphicsAssets();
 
         this.gamePlay = new GamePlay(this,0,0,this,dimensions);
@@ -218,8 +226,53 @@ export class Game extends Scene
             this.scale.on('resize', this.gameResized, this)
         }
         this.gameResized();
-
+        this.checkOrientation();
+        
+        window.addEventListener("resize", () => this.checkOrientation());
+        // window.addEventListener("orientationchange", () => this.checkOrientation());
     }
+
+    checkOrientation() {
+        const gameCanvas = this.game.canvas; // Get game canvas
+    
+        if (dimensions.fullWidth < dimensions.fullHeight) {
+            // Portrait Mode - Pause everything
+            this.scene.pause(this); // Ensure the correct scene is paused
+            this.matter.world.pause(); // Pause physics
+            this.tweens.pauseAll(); // Stop all tweens
+            gameCanvas.style.display = "none"; // Hide game
+    
+            // Hide input field and button
+            if (this.playerData.input_field) this.playerData.input_field.style.display = "none";
+            if (this.playerData.button) this.playerData.button.style.display = "none";
+            this.endCard.setVisible(false);
+            setTimeout(() => {
+                alert("Please rotate your device to landscape mode to continue.");
+            }, 100);
+        } else {
+            // Landscape Mode - Resume everything
+            this.scene.resume(this);
+            this.matter.world.resume();
+            this.tweens.resumeAll();
+            if(this.gameOver)
+            this.endCard.setVisible(true);
+    
+            // Force reflow to refresh canvas
+            gameCanvas.style.display = "none";
+            void gameCanvas.offsetHeight;
+            gameCanvas.style.display = "block";
+    
+            setTimeout(() => {
+                this.scale.resize(window.innerWidth, window.innerHeight);
+                this.scale.updateBounds();
+            }, 100);
+    
+            // Show input field and button
+            if (this.playerData.input_field) this.playerData.input_field.style.display = "block";
+            if (this.playerData.button) this.playerData.button.style.display = "block";
+        }
+    }
+    
 
     showEndCard(){
         // const deviceId = localStorage.getItem("deviceId") || Math.random().toString(36).substr(2, 9);
@@ -241,6 +294,7 @@ export class Game extends Scene
         setTimeout(() => {
             this.gamePlay = new GamePlay(this,0,0,this,dimensions);
             this.gameGroup.add(this.gamePlay);
+            this.gameOver = false;
 
             this.gamePlay.show();
 
@@ -329,8 +383,12 @@ export class Game extends Scene
 
         this.bg.setScale(scale);
 
+        console.log(scale);
+
         this.bg.x = dimensions.gameWidth/2;
         this.bg.y = dimensions.gameHeight/2;
+
+        this.bg.visible = true;
 
         this.phaser3.x = dimensions.gameWidth/2;
         this.phaser3.y = dimensions.gameHeight/2;
