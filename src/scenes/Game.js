@@ -122,8 +122,15 @@ export class Game extends Scene
 
             if (dimensions.isPortrait != dimensions.fullWidth < dimensions.fullHeight) {
                 this.switchMode(!dimensions.isPortrait);
+
             } else {
                 this.switchMode(dimensions.isPortrait);
+            }
+
+            if(dimensions.isLandscape){
+                this.scene.resume(); // Resume the game when in landscape mode
+            }else{
+                this.scene.pause(); // Pause the scene
             }
             this.game.scale.setGameSize(dimensions.fullWidth, dimensions.fullHeight);
 
@@ -154,6 +161,11 @@ export class Game extends Scene
         dimensions.rightOffset = dimensions.gameWidth - dimensions.leftOffset;
         dimensions.topOffset = -(dimensions.actualHeight - dimensions.gameHeight) / 2;
         dimensions.bottomOffset = dimensions.gameHeight - dimensions.topOffset;
+
+        if(dimensions.isLandscape){
+            dimensions.actualWidthL = this.game.canvas.width / this.gameScale;
+            dimensions.actualHeightL = this.game.canvas.height / this.gameScale;
+        }
 
         this.positioned = true;
     }
@@ -226,54 +238,8 @@ export class Game extends Scene
             this.scale.on('resize', this.gameResized, this)
         }
         this.gameResized();
-        this.checkOrientation();
-        
-        window.addEventListener("resize", () => this.checkOrientation());
-        // window.addEventListener("orientationchange", () => this.checkOrientation());
-    }
-
-    checkOrientation() {
-        const gameCanvas = this.game.canvas; // Get game canvas
-    
-        if (dimensions.fullWidth < dimensions.fullHeight) {
-            // Portrait Mode - Pause everything
-            this.scene.pause(this); // Ensure the correct scene is paused
-            this.matter.world.pause(); // Pause physics
-            this.tweens.pauseAll(); // Stop all tweens
-            gameCanvas.style.display = "none"; // Hide game
-    
-            // Hide input field and button
-            if (this.playerData.input_field) this.playerData.input_field.style.display = "none";
-            if (this.playerData.button) this.playerData.button.style.display = "none";
-            this.endCard.setVisible(false);
-            setTimeout(() => {
-                alert("Please rotate your device to landscape mode to continue.");
-            }, 100);
-        } else {
-            // Landscape Mode - Resume everything
-            this.scene.resume(this);
-            this.matter.world.resume();
-            this.tweens.resumeAll();
-            if(this.gameOver)
-            this.endCard.setVisible(true);
-    
-            // Force reflow to refresh canvas
-            gameCanvas.style.display = "none";
-            void gameCanvas.offsetHeight;
-            gameCanvas.style.display = "block";
-    
-            setTimeout(() => {
-                this.scale.resize(window.innerWidth, window.innerHeight);
-                this.scale.updateBounds();
-            }, 100);
-    
-            // Show input field and button
-            if (this.playerData.input_field) this.playerData.input_field.style.display = "block";
-            if (this.playerData.button) this.playerData.button.style.display = "block";
-        }
     }
     
-
     showEndCard(){
         // const deviceId = localStorage.getItem("deviceId") || Math.random().toString(36).substr(2, 9);
 

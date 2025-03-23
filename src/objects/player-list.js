@@ -154,18 +154,18 @@ import {
     displayedPlayers = displayedPlayers.slice(0, 6);
 
     // **Dynamic Sizing**
-    let maxWidth = dimension.actualWidth * 0.4; // 40% of screen width for left half
+    let maxWidth = dimension.actualWidthL * 0.4; // 40% of screen width for left half
     let tableWidth = Math.min(500, maxWidth);
     let rowHeight = 50;
     let totalHeight = (displayedPlayers.length + 1) * rowHeight;
-    let maxHeight = Math.min(dimension.actualHeight * 0.7, totalHeight);
-    let scaleFactor = Math.min(1, dimension.actualWidth / tableWidth, dimension.actualHeight / maxHeight);
+    let maxHeight = Math.min(dimension.actualHeightL * 0.7, totalHeight);
+    let scaleFactor = Math.min(1, dimension.actualWidthL / tableWidth, dimension.actualHeightL / maxHeight);
 
-    let leftHalfCenterX = dimension.actualWidth / 4; // Center of the left half of the screen
-    let centerY = dimension.actualHeight / 2;
+    let leftHalfCenterX = dimension.actualWidthL / 4; // Center of the left half of the screen
+    let centerY = dimension.actualHeightL / 2;
 
-    let startX = leftHalfCenterX - (tableWidth / 2) - dimension.actualWidth/2;
-    let startY = centerY - (maxHeight / 2) - dimension.actualHeight/2; // **Center Y position**
+    let startX = leftHalfCenterX - (tableWidth / 2) - dimension.actualWidthL/2;
+    let startY = centerY - (maxHeight / 2) - dimension.actualHeightL/2; // **Center Y position**
 
     console.log(startX,startY);
     // **Background Box**

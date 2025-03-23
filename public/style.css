@@ -13,6 +13,30 @@
     src: url("./fonts/Starborn.ttf") format("truetype");
 }
 
+@media screen and (orientation: portrait) {
+    #rotateMessage {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: black;
+        color: white;
+        font-size: 24px;
+        text-align: center;
+        z-index: 9999;
+    }
+}
+
+@media screen and (orientation: landscape) {
+    #rotateMessage {
+        display: none;
+    }
+}
+
 body {
     margin: 0;
     padding: 0;

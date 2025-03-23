@@ -136,7 +136,6 @@ export class GamePlay extends Phaser.GameObjects.Container {
         this.gameStarted = true;
         this.player.play("run");
         this.adjustPositioned = true;
-
         // this.updateSpeed();
     }
     
@@ -274,7 +273,7 @@ export class GamePlay extends Phaser.GameObjects.Container {
     }
 
     addLayer(){
-        let startX = -400;
+        let startX = -500;
         this.layerArr = [];
         for(let i=0;i<4;i++){
             let layer = this.scene.add.sprite(startX, 100, 'layer')//.setStatic(true).setCollisionCategory(this.wallCollision).setCollidesWith(this.playerCollision,this.stoneCollision);
