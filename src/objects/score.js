@@ -27,7 +27,7 @@ export class Score extends Phaser.GameObjects.Container {
         this.frame.setOrigin(0.5);
         this.add(this.frame);
         
-        this.score = this.scene.add.text(0,-20, "SCORE", {
+        this.score = this.scene.add.text(0,-20, "pontuação", {
             font: 'Bold 24px Arial',
             fill: '#000000'
         }).setOrigin(0.5, 0.5);

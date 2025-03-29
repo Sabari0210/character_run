@@ -67,9 +67,10 @@ import {
 
     for (const doc of querySnapshot.docs) {
         const playerData = doc.data();
-        if (playerData.username.toLowerCase() === playerName.toLowerCase()) {
-            return playerData.deviceId && playerData.deviceId !== currentDeviceId;
+        if (playerData.username && playerName && playerData.username.toLowerCase() === playerName.toLowerCase()) {
+          return playerData.deviceId && playerData.deviceId !== currentDeviceId;
         }
+      
     }
     return false;
   }
