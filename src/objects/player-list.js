@@ -81,7 +81,6 @@ import {
         const playersRef = collection(db, "players");
         const q = query(playersRef, where("username", "==", username));
         const querySnapshot = await getDocs(q);
-
         if (!querySnapshot.empty) {
           querySnapshot.forEach(async (playerDoc) => {
               const playerRef = doc(db, "players", playerDoc.id);
